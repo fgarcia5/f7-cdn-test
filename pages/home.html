@@ -1,0 +1,104 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left"></div>
+        <div class="title">
+          F7Core & @pqina/flip
+        </div>
+        <div class="right"></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="block block-strong block-tick-container">
+
+
+
+        <div id="clock-tick-countdown" class="tick">
+
+          <div data-repeat="false" data-layout="horizontal fit">
+
+            <span data-key="minutes" data-transform="pad(00)" data-view="flip"></span>
+
+            <span data-view="flip" data-key="sep" class="tick-text-inline"></span>
+
+            <span data-key="seconds" data-transform="pad(00)" data-view="flip"></span>
+
+          </div>
+
+        </div>
+
+        <button @click="onClickStart" class="button button-raised button-fill">Start</button>
+        <button @click="onClickPause" class="button button-raised button-fill color-red">Stop & Restart</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    data: function () {
+      return {
+        //Countdown clock
+        tickClock: null,
+        tickCountDown: null,
+        tickTimeSelected: 30,
+      }
+    },
+    on: {
+      pageInit() {
+        this.initializeCountDown();
+      }
+    },
+    methods: {
+      initializeCountDown() {
+        let self = this;
+        console.log('Tick', Tick);
+
+        // create a ticker on an element with options
+        var element = document.querySelector('#clock-tick-countdown');
+        self.tickClock = Tick.DOM.create(element, {
+          value: ["00", ":", "00"],
+          didInit: function (tick) {
+            self.handleTickInitDown(tick);
+          }
+        });
+      },
+      handleTickInitDown(tick) {
+        let self = this;
+        // get timer offset (if not found, set to today)
+        var offset = new Date();
+
+        // time in hours the timer will run down
+        var timeDuration = Tick.helper.duration(self.tickTimeSelected, 'minutes');
+
+        // add time selected to get final deadline
+        var deadline = new Date(offset.setMilliseconds(offset.getMilliseconds() + timeDuration));
+
+        // create counter
+        self.tickCountDown = Tick.count.down(deadline, {
+          format: ['m', 's']
+        });
+
+        console.log('tickCountDown', self.tickCountDown);
+
+        // update tick with the counter value
+        self.tickCountDown.onupdate = function (value) {
+          tick.value = [value[0], ":", value[1]];
+        };
+
+      },
+      onClickStart() {
+        this.tickCountDown.timer.start();
+      },
+      onClickPause() {
+        //Stop and set to tickTimeSelected clock
+        this.tickCountDown.timer.pause();
+        console.log(this.tickCountDown.value);
+        this.tickCountDown.value = [this.tickTimeSelected, ":", "00"]
+      }
+    }
+  };
+</script>
